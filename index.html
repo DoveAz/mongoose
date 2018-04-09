@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link href="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.css" rel="stylesheet">
+	<script src="https://cdn.bootcss.com/vue/2.5.16/vue.js"></script>
+	<script src="https://cdn.bootcss.com/axios/0.18.0/axios.min.js"></script>
+	<script src="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
+	<script>axios.defaults.baseURL = 'http://127.0.0.1:3000'</script>
+</head>
+<body>
+	<div id=main>
+		<h1>hello,{{username}}</h1>
+		<h2>发表文章</h2>
+		<form>
+			<input type="text" v-model=form.title>
+			<div id=editor></div>
+			<button @click.prevent=submit>提交</button>
+		</form>
+		<ul>
+			<li v-for="e in list" :key="e._id"><span @click.prevent=remove(e._id)>X</span> {{e.title}} {{e.content}} {{e.author && e.author.name}}</li>
+		</ul>
+
+		<h2>创建用户</h2>
+		<form>
+			<input type="text" v-model=userForm.username>
+			<input v-model=userForm.password type="password">
+			<button @click.prevent=submitUser>创建新用户</button>
+		</form>
+		<ul>
+			<li v-for="e in userList" :key="e._id"><span @click.prevent=removeUser(e._id)>X</span> {{e.username}} </li>
+		</ul>
+
+		<h2>登录</h2>
+		<form>
+			<input type="text" v-model=loginForm.username>
+			<input type="password" v-model=loginForm.password>
+			<button @click.prevent=login>登录</button>
+		</form>
+	</div>
+
+	<script>
+		let app = new Vue({
+			el:'#main',
+			data:{
+				list:[],
+				userList:[],
+				username:'',
+				form:{
+					title:1,
+					content:'哈哈'
+				},
+				userForm:{
+					
+				},
+				loginForm:{
+
+				}
+			},
+			methods:{
+				refresh(){
+					axios.get('article').then(res=>{
+						this.list= res.data
+					})
+				},
+				submit(){
+					let data  = Object.assign(this.form)
+					data.author = this.userList[0]._id
+					axios.post('article',this.form).then(res=>{
+						this.refresh()
+					})
+				},
+				remove(_id){
+					axios.delete('article/'+_id).then(res=>{
+						this.refresh()
+					})
+				},
+				refreshUser(){
+					axios.get('user').then(res=>{
+						this.userList= res.data
+					})
+				},
+				submitUser(){
+					axios.post('user',this.userForm).then(res=>{
+						this.refreshUser()
+					})
+				},
+				removeUser(_id){
+					axios.delete('user/'+_id).then(res=>{
+						console.log(res)
+						this.refreshUser()
+					}).catch((err)=>{
+						console.log(err.response.data.msg)
+					})
+				},
+				login(){
+					axios.post('login',this.loginForm).then(res=>{
+						console.log(res)
+					})
+				}
+			},
+			created(){
+				var editor = new wangEditor('#editor')
+				editor.customConfig.onchange = html => {
+					this.form.content = html
+				}
+				editor.create()
+				this.refresh()
+				this.refreshUser()
+				axios.get('profile').then(res=>{
+					this.username = res.data.username
+				})
+			}
+		})
+	</script>
+</body>
+</html>
