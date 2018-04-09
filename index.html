@@ -7,7 +7,10 @@
 	<script src="https://cdn.bootcss.com/vue/2.5.16/vue.js"></script>
 	<script src="https://cdn.bootcss.com/axios/0.18.0/axios.min.js"></script>
 	<script src="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
-	<script>axios.defaults.baseURL = 'http://127.0.0.1:3000'</script>
+	<script>
+	axios.defaults.baseURL = 'http://127.0.0.1:3000'
+	axios.defaults.headers.withCredentials = true
+	</script>
 	<style>
 		#main{
 			max-width:1024px;

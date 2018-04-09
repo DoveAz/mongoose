@@ -6,6 +6,7 @@ const app = new Koa()
 const server = require('koa-static')
 const router = require('./router')
 
+app.use(cors())
 app.keys = ['mongooseSession']
 const CONFIG = {
 	key: 'koa:sess',
@@ -25,8 +26,7 @@ const CONFIG = {
 	renew: false,
 	/** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/
 };
-app.use(session(CONFIG, app));
-app.use(cors())
+app.use(session(CONFIG, app))
 app.use(bodyParser())
 
 app.use(router.routes())

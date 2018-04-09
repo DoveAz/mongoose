@@ -22,17 +22,18 @@ router.post('/login', async (ctx, next) => {
         username,
         password
     }).then(res => {
-        if (res.length > 0) {
-            ctx.session.userId = res[0]._id
+        if(res){
+            ctx.session.userId = res._id
             ctx.body = {
                 code: 1
             }
-        } else {
+        }else{
             ctx.status = 401
             ctx.body = {
                 msg: "账号或密码错误"
             }
         }
+        
     })
 })
 
