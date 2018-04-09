@@ -9,9 +9,10 @@ const articleSchema = mongoose.Schema({
     content: String,
     author: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User2'
+        ref: 'User'
     }
 })
+
 const Article = mongoose.model('Article', articleSchema)
 
 const userSchema = mongoose.Schema({
