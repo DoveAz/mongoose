@@ -8,6 +8,18 @@
 	<script src="https://cdn.bootcss.com/axios/0.18.0/axios.min.js"></script>
 	<script src="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
 	<script>axios.defaults.baseURL = 'http://127.0.0.1:3000'</script>
+	<style>
+		#main{
+			max-width:1024px;
+			margin: 0 auto;
+		}
+		input{
+			margin: 10px 0;
+			font-size: 14px;
+			line-height: 20px;
+			width: 100%;
+		}
+	</style>
 </head>
 <body>
 	<div id=main>
@@ -15,11 +27,14 @@
 		<h2>发表文章</h2>
 		<form>
 			<input type="text" v-model=form.title>
-			<div id=editor></div>
+			<div ref="editor"></div>
 			<button @click.prevent=submit>提交</button>
 		</form>
 		<ul>
-			<li v-for="e in list" :key="e._id"><span @click.prevent=remove(e._id)>X</span> {{e.title}} {{e.content}} {{e.author && e.author.name}}</li>
+			<li v-for="e in list" :key="e._id">
+				<h3> <span @click.prevent=remove(e._id)>X</span> <span>{{e.title}}</span> <span>{{e.author && e.author.name}}</span></h3>
+				<article v-html=e.content></article>
+			</li>
 		</ul>
 
 		<h2>创建用户</h2>
@@ -48,8 +63,8 @@
 				userList:[],
 				username:'',
 				form:{
-					title:1,
-					content:'哈哈'
+					title:'',
+					content:''
 				},
 				userForm:{
 					
@@ -101,16 +116,20 @@
 				}
 			},
 			created(){
-				var editor = new wangEditor('#editor')
-				editor.customConfig.onchange = html => {
-					this.form.content = html
-				}
-				editor.create()
 				this.refresh()
 				this.refreshUser()
 				axios.get('profile').then(res=>{
 					this.username = res.data.username
 				})
+			},
+			mounted(){
+				var editor = new wangEditor(this.$refs.editor)
+				editor.customConfig.uploadImgServer = '/upload'
+				editor.customConfig.onchange = html => {
+					this.form.content = html
+				}
+				editor.customConfig.uploadFileName = 'images'
+				editor.create()
 			}
 		})
 	</script>
