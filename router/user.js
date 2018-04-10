@@ -1,7 +1,7 @@
 const Router = require('koa-router')
 const router = new Router()
 const fs = require('fs')
-const { Article, User } = require('../model')
+const User = require('../model/User')
 
 router.get('/', async (ctx, next) => {
     await User.find().then(res => {
@@ -10,9 +10,14 @@ router.get('/', async (ctx, next) => {
 })
 
 router.post('/', async (ctx, next) => {
-    await User.create(ctx.request.body).then(res => {
-        ctx.body = {
-            code: 1
+    await User.findOne({username:ctx.request.body.username}).then(async res=>{
+        if(res){
+            ctx.status = 400
+            ctx.body = {msg:'已存在的用户名'}
+        }else{
+            await User.create(ctx.request.body).then(res => {
+                ctx.body = {_id:res._id}
+            })
         }
     })
 })
