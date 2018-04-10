@@ -1,6 +1,5 @@
 const Router = require('koa-router')
 const router = new Router()
-const fs = require('fs')
 const User = require('../model/User')
 
 router.get('/', async (ctx, next) => {

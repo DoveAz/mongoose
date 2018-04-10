@@ -2,14 +2,12 @@ const Router = require('koa-router')
 const multer = require('koa-multer')
 const router = new Router()
 const fs = require('fs')
-const {Article,User} = require('../model')
-
+const User = require('../model/User')
 
 router.get('/', async (ctx, next) => {
     ctx.response.type = "html"
     ctx.body = fs.readFileSync('./index.html')
 })
-
 router.use('/article',require('./article').routes())
 router.use('/user', require('./user').routes())
 
@@ -33,7 +31,6 @@ router.post('/login', async (ctx, next) => {
                 msg: "账号或密码错误"
             }
         }
-        
     })
 })
 
@@ -58,7 +55,6 @@ let uploadMulter = multer({
             cb(null, file.originalname)
         }
     })
-
 })
 router.post('/upload', uploadMulter.array('images'), async (ctx, next) => {
     console.log(ctx.req.files.map(e => e.path))

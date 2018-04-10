@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
@@ -8,15 +9,16 @@
 	<script src="https://cdn.bootcss.com/axios/0.18.0/axios.min.js"></script>
 	<script src="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
 	<script>
-	axios.defaults.baseURL = 'http://127.0.0.1:3000'
-	axios.defaults.headers.withCredentials = true
+		axios.defaults.baseURL = 'http://127.0.0.1:3000'
+		axios.defaults.headers.withCredentials = true
 	</script>
 	<style>
-		#main{
-			max-width:1024px;
+		#main {
+			max-width: 1024px;
 			margin: 0 auto;
 		}
-		input{
+
+		input {
 			margin: 10px 0;
 			font-size: 14px;
 			line-height: 20px;
@@ -24,6 +26,7 @@
 		}
 	</style>
 </head>
+
 <body>
 	<div id=main>
 		<h1>hello,{{username}}</h1>
@@ -32,10 +35,18 @@
 			<input type="text" v-model=form.title>
 			<div ref="editor"></div>
 			<button @click.prevent=submit>提交</button>
+			<button @click.prevent=submitAmount>批量提交</button>
+			<button @click.prevent=removeAmount>批量删除</button>
 		</form>
+
+		<input type="text" v-model=page><button @click=refresh>获取</button>
 		<ul>
 			<li v-for="e in list" :key="e._id">
-				<h3> <span @click.prevent=remove(e._id)>X</span> <span>{{e.title}}</span> <span>{{e.author && e.author.name}}</span></h3>
+				<h3>
+					<span @click.prevent=remove(e._id)>X</span>
+					<span>{{e.title}}</span>
+					<span>{{e.author && e.author.name}}</span>
+				</h3>
 				<article v-html=e.content></article>
 			</li>
 		</ul>
@@ -47,7 +58,8 @@
 			<button @click.prevent=submitUser>创建新用户</button>
 		</form>
 		<ul>
-			<li v-for="e in userList" :key="e._id"><span @click.prevent=removeUser(e._id)>X</span> {{e.username}} </li>
+			<li v-for="e in userList" :key="e._id">
+				<span @click.prevent=removeUser(e._id)>X</span> {{e.username}} </li>
 		</ul>
 
 		<h2>登录</h2>
@@ -60,72 +72,86 @@
 
 	<script>
 		let app = new Vue({
-			el:'#main',
-			data:{
-				list:[],
-				userList:[],
-				username:'',
-				form:{
-					title:'',
-					content:''
+			el: '#main',
+			data: {
+				list: [],
+				userList: [],
+				username: '',
+				page:0,
+				form: {
+					title: '',
+					content: ''
 				},
-				userForm:{
-					
+				userForm: {
+
 				},
-				loginForm:{
+				loginForm: {
 
 				}
 			},
-			methods:{
-				refresh(){
-					axios.get('article').then(res=>{
-						this.list= res.data
+			methods: {
+				refresh() {
+					axios.get('article',{params:{
+						page:this.page,
+						count:10
+					}}).then(res => {
+						this.list = res.data
 					})
 				},
-				submit(){
-					let data  = Object.assign(this.form)
+				submit(refresh = true) {
+					let data = Object.assign(this.form)
 					data.author = this.userList[0]._id
-					axios.post('article',this.form).then(res=>{
-						this.refresh()
+					axios.post('article', this.form).then(res => {
+						refresh && this.refresh()
 					})
 				},
-				remove(_id){
-					axios.delete('article/'+_id).then(res=>{
-						this.refresh()
+				submitAmount() {
+					setInterval(() => this.submit(false), 30)
+				},
+				removeAmount() {
+					let index = 0
+					setInterval(() => {
+						index += 1
+						this.remove(this.list[index]._id, false)
+					}, 100)
+				},
+				remove(_id, refresh = true) {
+					axios.delete('article/' + _id).then(res => {
+						refresh && this.refresh()
 					})
 				},
-				refreshUser(){
-					axios.get('user').then(res=>{
-						this.userList= res.data
+				refreshUser() {
+					axios.get('user').then(res => {
+						this.userList = res.data
 					})
 				},
-				submitUser(){
-					axios.post('user',this.userForm).then(res=>{
+				submitUser() {
+					axios.post('user', this.userForm).then(res => {
 						this.refreshUser()
 					})
 				},
-				removeUser(_id){
-					axios.delete('user/'+_id).then(res=>{
+				removeUser(_id) {
+					axios.delete('user/' + _id).then(res => {
 						console.log(res)
 						this.refreshUser()
-					}).catch((err)=>{
+					}).catch((err) => {
 						console.log(err.response.data.msg)
 					})
 				},
-				login(){
-					axios.post('login',this.loginForm).then(res=>{
+				login() {
+					axios.post('login', this.loginForm).then(res => {
 						console.log(res)
 					})
 				}
 			},
-			created(){
+			created() {
 				this.refresh()
 				this.refreshUser()
-				axios.get('profile').then(res=>{
+				axios.get('profile').then(res => {
 					this.username = res.data.username
 				})
 			},
-			mounted(){
+			mounted() {
 				var editor = new wangEditor(this.$refs.editor)
 				editor.customConfig.uploadImgServer = '/upload'
 				editor.customConfig.onchange = html => {
@@ -137,4 +163,5 @@
 		})
 	</script>
 </body>
+
 </html>

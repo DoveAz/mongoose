@@ -3,7 +3,8 @@ const router = new Router()
 const Article = require('../model/Article')
 
 router.get('/', async (ctx, next) => {
-    await Article.find().populate('author','-password').then(res => {
+    const {page,count}=ctx.query
+    await Article.find().sort('-createdAt').skip(page*count).limit(count).populate('author','-password').then(res => {
         ctx.body = res
     })
 })
