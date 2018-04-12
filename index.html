@@ -39,7 +39,8 @@
 			<button @click.prevent=removeAmount>批量删除</button>
 		</form>
 
-		<input type="text" v-model=page><button @click=refresh>获取</button>
+		<input type="text" v-model=page>
+		<button @click=refresh>获取</button>
 		<ul>
 			<li v-for="e in list" :key="e._id">
 				<h3>
@@ -77,7 +78,7 @@
 				list: [],
 				userList: [],
 				username: '',
-				page:0,
+				page: 0,
 				form: {
 					title: '',
 					content: ''
@@ -91,33 +92,25 @@
 			},
 			methods: {
 				refresh() {
-					axios.get('article',{params:{
-						page:this.page,
-						count:10
-					}}).then(res => {
+					axios.get('article', {
+						params: {
+							page: this.page,
+							count: 10000
+						}
+					}).then(res => {
 						this.list = res.data
 					})
 				},
-				submit(refresh = true) {
+				submit() {
 					let data = Object.assign(this.form)
 					data.author = this.userList[0]._id
 					axios.post('article', this.form).then(res => {
-						refresh && this.refresh()
+						this.refresh()
 					})
 				},
-				submitAmount() {
-					setInterval(() => this.submit(false), 30)
-				},
-				removeAmount() {
-					let index = 0
-					setInterval(() => {
-						index += 1
-						this.remove(this.list[index]._id, false)
-					}, 100)
-				},
-				remove(_id, refresh = true) {
+				remove(_id) {
 					axios.delete('article/' + _id).then(res => {
-						refresh && this.refresh()
+						this.refresh()
 					})
 				},
 				refreshUser() {
